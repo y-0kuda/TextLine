@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+
+import { ConvexClientProvider } from "@/components/convex-client-provider";
+
 import "./globals.css";
+import { ConvexProvider } from "convex/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {/* ConvexClientProviderはクライアントサイドのファイルだが、childrenが全てクライアントサイドになるわけではない */}
+        <ConvexClientProvider>{children}</ConvexClientProvider>
+      </body>
     </html>
   );
 }

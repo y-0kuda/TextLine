@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { TriangleAlert } from "lucide-react";
 
 import { SignInFlow } from "../types";
 
@@ -25,7 +26,22 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  const onPasswordSignIn = (e: React.FormEvent<HTMLFormElement>) => {
+    // htmlのデフォルトの<form></form>で送信するのではなく、convexのsigninで送信する
+    e.preventDefault();
+
+    setPending(true);
+    signIn("password", { email, password, flow: "signIn" })
+      .catch(() => {
+        setError("Invalid Email or Password");
+      })
+      .finally(() => {
+        setPending(false);
+      });
+  };
 
   const handleProviderSignIn = (value: "github" | "google") => {
     // 認証ボタンを押したらpendingをtrueにして押せなくする
@@ -44,9 +60,17 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
           Use Your Email or Another Service to Continue
         </CardDescription>
       </CardHeader>
+      {/* setStateのerrorが空でなければ発火する */}
+      {/* errrorは上部のcatchの中でセットされる */}
+      {!!error && (
+        <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 test-sm text-destructive mb-6">
+          <TriangleAlert className="size-4" />
+          <p>{error}</p>
+        </div>
+      )}
       <CardContent className="space-y-5 px-0 pb-0">
         {/* HTMLのフォーム */}
-        <form className="space-y-2.5">
+        <form onSubmit={onPasswordSignIn} className="space-y-2.5">
           <Input
             disabled={pending}
             value={email}
